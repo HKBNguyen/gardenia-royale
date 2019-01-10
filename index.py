@@ -27,8 +27,12 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
+YELLOW = (255, 255, 0)
 BLUE = (0, 0, 255)
- 
+
+# Physics
+GRAVITY = 0.35
+
 # Screen dimensions
 SCREEN_WIDTH = 1300
 SCREEN_HEIGHT = 750
@@ -37,13 +41,11 @@ SCREEN_HEIGHT = 750
 PLAYER_WIDTH = 30
 PLAYER_HEIGHT = 40
 
-
-class Player(pygame.sprite.Sprite):
-    """ This class represents the bar at the bottom that the player
-        controls. """
+class PhysicalObject(pygame.sprite.Sprite):
+    """ This class represents any object that can interact with the world"""
  
     # -- Methods
-    def __init__(self):
+    def __init__(self, width, height, color):
         """ Constructor function """
  
         # Call the parent's constructor
@@ -53,8 +55,8 @@ class Player(pygame.sprite.Sprite):
         # This could also be an image loaded from the disk.
         # width = 40
         # height = 60
-        self.image = pygame.Surface([PLAYER_WIDTH, PLAYER_HEIGHT])
-        self.image.fill(RED)
+        self.image = pygame.Surface([width, height])
+        self.image.fill(color)
  
         # Set a referance to the image rect.
         self.rect = self.image.get_rect()
@@ -106,12 +108,27 @@ class Player(pygame.sprite.Sprite):
         if self.change_y == 0:
             self.change_y = 1
         else:
-            self.change_y += .35
+            self.change_y += GRAVITY
  
         # See if we are on the ground.
         if self.rect.y >= SCREEN_HEIGHT - self.rect.height and self.change_y >= 0:
             self.change_y = 0
             self.rect.y = SCREEN_HEIGHT - self.rect.height
+
+
+class Player(PhysicalObject):
+    """ This class represents the bar at the bottom that the player
+        controls. """
+ 
+    # -- Methods
+    def __init__(self, color):
+        """ Constructor function """
+ 
+        # Call the parent's constructor
+        super().__init__(PLAYER_WIDTH, PLAYER_HEIGHT, color)
+
+        # Current item (can only hold 1 at a time)
+        self.item = None
  
     def jump(self):
         """ Called when user hits 'jump' button. """
@@ -139,7 +156,39 @@ class Player(pygame.sprite.Sprite):
     def stop(self):
         """ Called when the user lets off the keyboard. """
         self.change_x = 0
- 
+
+class Item(PhysicalObject):
+    def __init__(self, x, y, itemType, image, sound=None, useSound=None):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(image).convert_alpha()
+        self.rect = self.image.get_rect()
+        self.rect.x=x
+        self.rect.y=y
+        self.itemType = itemType
+        self.loadSound(sound)
+
+    def loadSound(self, sound):
+        if sound != None:
+            self.sound = pygame.mixer.Sound(sound)
+        else:
+            self.sound = None
+
+    def playSound(self):
+        if self.sound != None:
+            self.sound.play()
+
+    def pickUp(self):
+        self.playSound()
+        return self.itemType
+
+    def use(self):
+        super().use()
+        self.playSound()
+
+class Gun(Item):
+    def use(self):
+        #shoot
+        pass
  
 class Platform(pygame.sprite.Sprite):
     """ Platform the user can jump on """
@@ -239,11 +288,11 @@ def main():
     size = [SCREEN_WIDTH, SCREEN_HEIGHT]
     screen = pygame.display.set_mode(size)
  
-    pygame.display.set_caption("Gardenia Royale")
+    pygameactive_sprite_list.display.set_caption("Gardenia Royale")
  
     # Create the right player and left player
-    rightPlayer = Player()
-    leftPlayer = Player()
+    rightPlayer = Player(RED)
+    leftPlayer = Player(YELLOW)
 
     # Create all the levels
     level_list = []
@@ -258,11 +307,11 @@ def main():
     rightPlayer.level = current_level
     leftPlayer.level = current_level
  
-    rightPlayer.rect.x = 340
+    rightPlayer.rect.x = 840
     rightPlayer.rect.y = SCREEN_HEIGHT - rightPlayer.rect.height
     active_sprite_list.add(rightPlayer)
  
-    leftPlayer.rect.x = 840
+    leftPlayer.rect.x = 340
     leftPlayer.rect.y = SCREEN_HEIGHT - leftPlayer.rect.height
     active_sprite_list.add(leftPlayer)
  
