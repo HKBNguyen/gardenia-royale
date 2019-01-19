@@ -158,7 +158,9 @@ class Player(PhysicalObject):
         self.change_x = 0
 
 class Item(PhysicalObject):
-    def __init__(self, x, y, itemType, image, sound=None, useSound=None):
+    def __init__(self, width, height, color, x, y, itemType, image, sound=None, useSound=None):
+        super().__init__(width, height, color)
+
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load(image).convert_alpha()
         self.rect = self.image.get_rect()
@@ -188,7 +190,25 @@ class Item(PhysicalObject):
 class Gun(Item):
     def use(self):
         #shoot
+
+class Bullet(pygame.sprite.Sprite):
+    def __init__(self, pointingLeft):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((10, 20))
+        self.image.fill(YELLOW)
+        # self.rect = self.image.get_rect()
+        # self.rect.centery = y
+        # self.rect.centerx = x
+        self.speed = 10 if pointingLeft else -10
+
+    def update(self):
+        # move forward
+        self.rect.x += self.speed
+        # kill if it moves off the top of the screen
+        if self.rect.left < 0 or self.rect.right > SCREEN_WIDTH:
+            self.kill()
         pass
+
  
 class Platform(pygame.sprite.Sprite):
     """ Platform the user can jump on """
@@ -314,6 +334,8 @@ def main():
     leftPlayer.rect.x = 340
     leftPlayer.rect.y = SCREEN_HEIGHT - leftPlayer.rect.height
     active_sprite_list.add(leftPlayer)
+
+    bullet_list = pygame.sprite.Group()
  
 
     # Loop until the user clicks the close button.
@@ -362,6 +384,9 @@ def main():
  
         # Update items in the level
         current_level.update()
+
+        # Update bullets
+        bullet_list.update()
  
         # If the player gets near the right side, shift the world left (-x)
         if rightPlayer.rect.right > SCREEN_WIDTH:
