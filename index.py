@@ -373,7 +373,10 @@ def main():
     size = [SCREEN_WIDTH, SCREEN_HEIGHT]
     screen = pygame.display.set_mode(size)
 
+
     pygame.display.set_caption("Gardenia Royale")
+
+    # pygame.display.toggle_fullscreen()
     # Create the right player and left player
     rightPlayer = Player(RED)
     leftPlayer = Player(YELLOW)
@@ -413,6 +416,15 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                pygame.display.toggle_fullscreen()
+            # if (e.type is KEYDOWN and e.key == K_ESC):
+                # if screen.get_flags() & FULLSCREEN:
+                #     pygame.display.set_mode(size)
+                # else:
+                #     pygame.display.set_mode(size, FULLSCREEN)
+
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
