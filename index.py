@@ -365,6 +365,8 @@ class Level_01(Level):
 
 def main():
     """ Main Program """
+    pygame.mixer.pre_init(44100, -16, 2, 2048)
+    pygame.mixer.init()
     pygame.init()
 
     # Set the height and width of the screen
