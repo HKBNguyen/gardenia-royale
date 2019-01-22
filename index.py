@@ -261,6 +261,13 @@ class Box(Platform):
         block.rect.y = self.rect.y - 70
         self.player.level.platform_list.add(block)
 
+class Background(pygame.sprite.Sprite):
+    def __init__(self, image_file, location):
+        pygame.sprite.Sprite.__init__(self)  #call Sprite initializer
+        self.image = pygame.image.load(image_file)
+        self.rect = self.image.get_rect()
+        self.rect.left, self.rect.top = location
+
 class Level(object):
     """ This is a generic super-class used to define a level.
         Create a child class for each level with level-specific
@@ -275,7 +282,7 @@ class Level(object):
         self.box_list = pygame.sprite.Group()
         self.item_list = pygame.sprite.Group()
         # Background image
-        self.background = None
+        self.background = Background('images/bg.jpg', [0,0])
 
     # Update everythign on this level
     def update(self):
@@ -289,7 +296,10 @@ class Level(object):
         """ Draw everything on this level. """
 
         # Draw the background
-        screen.fill(BLUE)
+        # screen.fill(BLUE)
+        screen.fill([255, 255, 255])
+        screen.blit(self.background.image, self.background.rect)
+        
 
         # Draw all the sprite lists that we have
         self.platform_list.draw(screen)
